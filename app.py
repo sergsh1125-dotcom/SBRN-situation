@@ -41,7 +41,15 @@ html, body {{
 <option value="{BASE_URL}detect_chemical.svg">Точка виявлення хімічного забруднення</option>
 <option value="{BASE_URL}detect_biological.svg">Точка виявлення біологічного зараження</option>
 <option value="{BASE_URL}nuclear_blast.svg">Епіцентр ядерного вибуху</option>
+<option value="{BASE_URL}radioactive_site.svg">Радіаційно небезпечний об’єкт</option>
+<option value="{BASE_URL}chemical_hazard_site.svg">Хімічно небезпечний об’єкт</option>
+<option value="{BASE_URL}biological_hazard_site.svg">Біологічно небезпечний об’єкт</option>
+<option value="{BASE_URL}cbrn_recon_area.svg">Район РХБ розвідки</option>
+<option value="{BASE_URL}decon_area_special.svg">Район спеціальної обробки</option>
+<option value="{BASE_URL}decon_point_special.svg">Пункт спеціальної обробки</option>
 <option value="{BASE_URL}cbrn_post.svg">Пост РХС</option>
+<option value="{BASE_URL}cbrn_post.svg">Пост РХС</option>
+
 </select>
 
 <button onclick="enableText()">Текст</button>
