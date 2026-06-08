@@ -5,53 +5,31 @@ st.set_page_config(page_title="CBRN Editor", layout="wide")
 
 BASE_URL = "https://raw.githubusercontent.com/sergsh1125-dotcom/SBRN-situation/main/svg/"
 
-symbols = {
-    "Радіація": "detect_radiation.svg",
-    "Хімія": "detect_chemical.svg",
-    "Біо": "detect_biological.svg",
-    "Ядерний вибух": "nuclear_blast.svg",
-    "Пост РХС": "cbrn_post.svg"
-}
-
-col_left, col_center = st.columns([1, 4])
-
-# ================= LEFT =================
-with col_left:
-    st.markdown("""
-    <div style="
-        background:#ffcc00;
-        color:black;
-        font-weight:bold;
-        text-align:center;
-        padding:12px;
-        border-radius:6px;
-    ">
-    УМОВНІ ЗНАКИ
-    </div>
-    """, unsafe_allow_html=True)
-
-# ================= CENTER =================
-with col_center:
-
-    map_html = f"""
+map_html = f"""
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
+html, body {{
+    margin:0;
+    padding:0;
+}}
+
 #panel {{
     position:absolute;
     top:10px;
-    left:10px;
+    right:10px;   /* 👈 ВАЖНО: перенос вправо */
     z-index:9999;
     background:white;
     padding:10px;
     border-radius:6px;
-    width:180px;
+    width:200px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.2);
 }}
 
-button {{
-    width:100%;
-    margin-top:5px;
+#map {{
+    height: 92vh;
+    width: 100%;
 }}
 </style>
 
@@ -72,7 +50,7 @@ button {{
 
 </div>
 
-<div id="map" style="height:700px;"></div>
+<div id="map"></div>
 
 <script>
 
@@ -86,7 +64,6 @@ var addMode = true;
 
 var data = JSON.parse(localStorage.getItem("cbrn") || "[]");
 
-// LOAD
 data.forEach(p => {{
 
     var icon = L.icon({{
@@ -95,7 +72,7 @@ data.forEach(p => {{
         iconAnchor: [16,16]
     }});
 
-    var m = L.marker([p.lat,p.lng], {{icon:icon}}).addTo(map);
+    var m = L.marker([p.lat,p.lng], {{icon}}).addTo(map);
 
     if(p.text) m.bindPopup(p.text);
 
@@ -104,13 +81,11 @@ data.forEach(p => {{
     }});
 }});
 
-// SELECT SYMBOL
 document.getElementById("symbolSelect").onchange = function(e) {{
     selectedIcon = e.target.value;
     addMode = true;
 }};
 
-// CLICK MAP
 map.on('click', function(e) {{
 
     if(!addMode || !selectedIcon) return;
@@ -128,7 +103,7 @@ map.on('click', function(e) {{
         iconAnchor: [16,16]
     }});
 
-    var m = L.marker(e.latlng, {{icon:icon}}).addTo(map);
+    var m = L.marker(e.latlng, {{icon}}).addTo(map);
 
     if(text) m.bindPopup(text);
 
@@ -146,20 +121,15 @@ map.on('click', function(e) {{
     localStorage.setItem("cbrn", JSON.stringify(data));
 }});
 
-// TEXT (one-time)
 function enableText() {{
     textMode = true;
-    alert("Режим тексту ON (один клік)");
 }}
 
-// DISABLE ALL
 function disableMode() {{
     addMode = false;
     selectedIcon = "";
-    alert("Режим нанесення ВИМКНЕНО");
 }}
 
-// CLEAR
 function clearAll() {{
     localStorage.removeItem("cbrn");
     location.reload();
@@ -168,4 +138,4 @@ function clearAll() {{
 </script>
 """
 
-    components.html(map_html, height=750)
+components.html(map_html, height=800)
