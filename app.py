@@ -5,17 +5,13 @@ st.set_page_config(page_title="CBRN Editor", layout="wide")
 
 BASE_URL = "https://raw.githubusercontent.com/sergsh1125-dotcom/SBRN-situation/main/svg/"
 
-symbols = [
-    {"label": "Радіація", "icon": "detect_radiation.svg"},
-    {"label": "Хімія", "icon": "detect_chemical.svg"},
-    {"label": "Біо", "icon": "detect_biological.svg"},
-    {"label": "Ядерний вибух", "icon": "nuclear_blast.svg"},
-    {"label": "Пост", "icon": "cbrn_post.svg"},
-]
-
-selected = st.selectbox("Умовні знаки", symbols, format_func=lambda x: x["label"])
-
-icon_url = BASE_URL + selected["icon"]
+symbols = {
+    "Радіація": "detect_radiation.svg",
+    "Хімія": "detect_chemical.svg",
+    "Біо": "detect_biological.svg",
+    "Ядерний вибух": "nuclear_blast.svg",
+    "Пост РХС": "cbrn_post.svg"
+}
 
 col_left, col_center = st.columns([1, 4])
 
@@ -28,8 +24,6 @@ with col_left:
     </div>
     """, unsafe_allow_html=True)
 
-    text_mode = st.button("ТЕКСТ")
-
 # ================= CENTER =================
 with col_center:
 
@@ -37,30 +31,47 @@ with col_center:
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<div id="map" style="height:700px;"></div>
+<style>
+#panel {{
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:white;
+    padding:10px;
+    z-index:9999;
+    border-radius:6px;
+}}
+</style>
 
-<div style="margin-top:10px; text-align:center;">
-<button onclick="clearMap()">Очистити карту</button>
-<button onclick="toggleText()">Текст: ON/OFF</button>
+<div id="panel">
+<select id="symbolSelect">
+<option value="">-- Умовні знаки --</option>
+<option value="{BASE_URL}detect_radiation.svg">Радіація</option>
+<option value="{BASE_URL}detect_chemical.svg">Хімія</option>
+<option value="{BASE_URL}detect_biological.svg">Біо</option>
+<option value="{BASE_URL}nuclear_blast.svg">Ядерний вибух</option>
+<option value="{BASE_URL}cbrn_post.svg">Пост РХС</option>
+</select>
+
+<button onclick="toggleText()">Текст</button>
+<button onclick="clearMap()">Очистити</button>
 </div>
+
+<div id="map" style="height:700px;"></div>
 
 <script>
 
-var map = L.map('map').setView([48.3794, 31.1656], 6);
+var map = L.map('map').setView([48.3794,31.1656],6);
 
-L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
-    attribution: 'OSM'
-}}).addTo(map);
+L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png').addTo(map);
 
-var iconUrl = "{icon_url}";
+var selectedIcon = "";
 var textMode = false;
 
-// ---------------- storage ----------------
 var data = JSON.parse(localStorage.getItem("cbrn") || "[]");
 
-// load saved
 data.forEach(p => {{
-    L.marker([p.lat, p.lng], {{
+    L.marker([p.lat,p.lng], {{
         icon: L.icon({{
             iconUrl: p.icon,
             iconSize: [32,32],
@@ -69,12 +80,16 @@ data.forEach(p => {{
     }}).addTo(map).bindPopup(p.text || "");
 }});
 
-function save() {{
-    localStorage.setItem("cbrn", JSON.stringify(data));
-}}
+document.getElementById("symbolSelect").onchange = function(e) {{
+    selectedIcon = e.target.value;
+}};
 
-// ---------------- click ----------------
 map.on('click', function(e) {{
+
+    if(!selectedIcon) {{
+        alert("Вибери умовний знак");
+        return;
+    }}
 
     var text = "";
 
@@ -84,7 +99,7 @@ map.on('click', function(e) {{
 
     var marker = L.marker(e.latlng, {{
         icon: L.icon({{
-            iconUrl: iconUrl,
+            iconUrl: selectedIcon,
             iconSize: [32,32],
             iconAnchor: [16,16]
         }})
@@ -95,23 +110,21 @@ map.on('click', function(e) {{
     data.push({{
         lat: e.latlng.lat,
         lng: e.latlng.lng,
-        icon: iconUrl,
+        icon: selectedIcon,
         text: text
     }});
 
-    save();
+    localStorage.setItem("cbrn", JSON.stringify(data));
 }});
 
-// ---------------- clear ----------------
+function toggleText() {{
+    textMode = !textMode;
+    alert("TEXT: " + (textMode ? "ON" : "OFF"));
+}}
+
 function clearMap() {{
     localStorage.removeItem("cbrn");
     location.reload();
-}}
-
-// ---------------- toggle text ----------------
-function toggleText() {{
-    textMode = !textMode;
-    alert("Текст режим: " + (textMode ? "ON" : "OFF"));
 }}
 
 </script>
