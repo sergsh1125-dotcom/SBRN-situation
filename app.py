@@ -124,39 +124,38 @@ var data = JSON.parse(
 
 function drawItem(p) {{
 
-    if(p.type === "text") {
+    if(p.type === "text") {{
 
-    var label = L.tooltip({
+    var label = L.tooltip({{
         permanent:true,
         direction:"top",
         className:"label-text"
-    })
+    }})
     .setLatLng([p.lat,p.lng])
     .setContent(p.text)
     .addTo(map);
 
-    label.on("click", function() {
+    label.on("click", function() {{
 
         map.removeLayer(label);
 
-        data = data.filter(function(item) {
+        data = data.filter(function(item) {{
             return !(
                 item.type === "text" &&
                 item.lat === p.lat &&
                 item.lng === p.lng &&
                 item.text === p.text
             );
-        });
+        }});
 
         localStorage.setItem(
             "cbrn",
             JSON.stringify(data)
         );
-    });
+    }});
 
     return;
-}
-
+}}
     var icon = L.icon({{
         iconUrl:p.icon,
         iconSize:[32,32],
