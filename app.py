@@ -126,25 +126,58 @@ function drawItem(p) {{
 
     if(p.type === "text") {{
 
-    var label = L.tooltip({{
-        permanent:true,
-        direction:"top",
-        className:"label-text"
-    }})
-    .setLatLng([p.lat,p.lng])
-    .setContent(p.text)
-    .addTo(map);
+        var label = L.tooltip({{
+            permanent:true,
+            direction:"top",
+            className:"label-text"
+        }})
+        .setLatLng([p.lat,p.lng])
+        .setContent(p.text)
+        .addTo(map);
 
-    label.on("click", function() {{
+        label.on("click", function() {{
 
-        map.removeLayer(label);
+            map.removeLayer(label);
+
+            data = data.filter(function(item) {{
+                return !(
+                    item.type === "text" &&
+                    item.lat === p.lat &&
+                    item.lng === p.lng &&
+                    item.text === p.text
+                );
+            }});
+
+            localStorage.setItem(
+                "cbrn",
+                JSON.stringify(data)
+            );
+        }});
+
+        return;
+    }}
+
+    var icon = L.icon({{
+        iconUrl:p.icon,
+        iconSize:[32,32],
+        iconAnchor:[16,16]
+    }});
+
+    var marker = L.marker(
+        [p.lat,p.lng],
+        {{icon:icon}}
+    ).addTo(map);
+
+    marker.on("click", function() {{
+
+        map.removeLayer(marker);
 
         data = data.filter(function(item) {{
             return !(
-                item.type === "text" &&
+                item.type === "symbol" &&
                 item.lat === p.lat &&
                 item.lng === p.lng &&
-                item.text === p.text
+                item.icon === p.icon
             );
         }});
 
@@ -153,7 +186,7 @@ function drawItem(p) {{
             JSON.stringify(data)
         );
     }});
-
+}}
     return;
 }}
     var icon = L.icon({{
