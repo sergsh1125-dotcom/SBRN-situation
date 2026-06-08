@@ -1,53 +1,36 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="CBRN Symbol Editor", layout="wide")
+st.set_page_config(page_title="CBRN Editor", layout="wide")
 
 BASE_URL = "https://raw.githubusercontent.com/sergsh1125-dotcom/SBRN-situation/main/svg/"
 
 symbols = [
-    {"label": "Радіаційне зараження", "icon": "detect_radiation.svg"},
-    {"label": "Хімічне зараження", "icon": "detect_chemical.svg"},
-    {"label": "Біологічне зараження", "icon": "detect_biological.svg"},
+    {"label": "Радіація", "icon": "detect_radiation.svg"},
+    {"label": "Хімія", "icon": "detect_chemical.svg"},
+    {"label": "Біо", "icon": "detect_biological.svg"},
     {"label": "Ядерний вибух", "icon": "nuclear_blast.svg"},
-    {"label": "Пост РХС", "icon": "cbrn_post.svg"},
+    {"label": "Пост", "icon": "cbrn_post.svg"},
 ]
 
 selected = st.selectbox("Умовні знаки", symbols, format_func=lambda x: x["label"])
+
 icon_url = BASE_URL + selected["icon"]
 
 col_left, col_center = st.columns([1, 4])
 
-# =========================
-# ЛЕВАЯ ПАНЕЛЬ
-# =========================
+# ================= LEFT =================
 with col_left:
 
-    st.markdown(
-        """
-        <div style="
-            background:#ffcc00;
-            color:black;
-            font-weight:bold;
-            padding:15px;
-            text-align:center;
-            border-radius:6px;
-            margin-bottom:10px;
-        ">
-        УМОВНІ ЗНАКИ
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div style="background:#ffcc00;color:black;padding:12px;font-weight:bold;text-align:center;border-radius:6px;">
+    УМОВНІ ЗНАКИ
+    </div>
+    """, unsafe_allow_html=True)
 
-    if st.button("ТЕКСТ (підпис)"):
-        st.session_state["text_mode"] = True
-    else:
-        st.session_state.setdefault("text_mode", False)
+    text_mode = st.button("ТЕКСТ")
 
-# =========================
-# ЦЕНТР - КАРТА
-# =========================
+# ================= CENTER =================
 with col_center:
 
     map_html = f"""
@@ -57,75 +40,79 @@ with col_center:
 <div id="map" style="height:700px;"></div>
 
 <div style="margin-top:10px; text-align:center;">
-    <button onclick="clearAll()">Очистити карту</button>
+<button onclick="clearMap()">Очистити карту</button>
+<button onclick="toggleText()">Текст: ON/OFF</button>
 </div>
 
 <script>
 
-// ---------------- MAP ----------------
 var map = L.map('map').setView([48.3794, 31.1656], 6);
 
 L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
     attribution: 'OSM'
 }}).addTo(map);
 
-// ---------------- STORAGE ----------------
-var markers = JSON.parse(localStorage.getItem("cbrn_markers") || "[]");
+var iconUrl = "{icon_url}";
+var textMode = false;
 
-function saveMarkers() {{
-    localStorage.setItem("cbrn_markers", JSON.stringify(markers));
-}}
+// ---------------- storage ----------------
+var data = JSON.parse(localStorage.getItem("cbrn") || "[]");
 
-// ---------------- ICON ----------------
-var selectedIcon = "{icon_url}";
-
-// ---------------- LOAD SAVED ----------------
-markers.forEach(m => {{
-    L.marker([m.lat, m.lng], {{
+// load saved
+data.forEach(p => {{
+    L.marker([p.lat, p.lng], {{
         icon: L.icon({{
-            iconUrl: m.icon,
+            iconUrl: p.icon,
             iconSize: [32,32],
             iconAnchor: [16,16]
         }})
-    }}).addTo(map).bindPopup(m.text || "");
+    }}).addTo(map).bindPopup(p.text || "");
 }});
 
-// ---------------- ADD MARKER ----------------
+function save() {{
+    localStorage.setItem("cbrn", JSON.stringify(data));
+}}
+
+// ---------------- click ----------------
 map.on('click', function(e) {{
 
     var text = "";
 
-    if(window.textMode) {{
-        text = prompt("Введіть підпис:");
+    if(textMode) {{
+        text = prompt("Підпис:");
     }}
 
-    var icon = L.icon({{
-        iconUrl: selectedIcon,
-        iconSize: [32,32],
-        iconAnchor: [16,16]
-    }});
+    var marker = L.marker(e.latlng, {{
+        icon: L.icon({{
+            iconUrl: iconUrl,
+            iconSize: [32,32],
+            iconAnchor: [16,16]
+        }})
+    }}).addTo(map);
 
-    L.marker(e.latlng, {{icon: icon}})
-        .addTo(map)
-        .bindPopup(text || "");
+    if(text) marker.bindPopup(text);
 
-    markers.push({{
+    data.push({{
         lat: e.latlng.lat,
         lng: e.latlng.lng,
-        icon: selectedIcon,
+        icon: iconUrl,
         text: text
     }});
 
-    saveMarkers();
+    save();
 }});
 
-// ---------------- CLEAR ----------------
-function clearAll() {{
-    localStorage.removeItem("cbrn_markers");
+// ---------------- clear ----------------
+function clearMap() {{
+    localStorage.removeItem("cbrn");
     location.reload();
 }}
 
-window.textMode = false;
+// ---------------- toggle text ----------------
+function toggleText() {{
+    textMode = !textMode;
+    alert("Текст режим: " + (textMode ? "ON" : "OFF"));
+}}
 
 </script>
 """
