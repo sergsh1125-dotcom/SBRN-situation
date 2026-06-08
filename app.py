@@ -14,7 +14,14 @@ html, body {{
     margin:0;
     padding:0;
 }}
-
+.label-text {
+    background: white;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: black;
+}
 #panel {{
     position:absolute;
     top:10px;
@@ -92,16 +99,48 @@ document.getElementById("symbolSelect").onchange = function(e) {{
     addMode = true;
 }};
 
-map.on('click', function(e) {{
-
-    if(!addMode || !selectedIcon) return;
+map.on('click', function(e) {
 
     var text = "";
 
-    if(textMode) {{
+    // если включён режим текста — всегда спрашиваем
+    if(textMode) {
         text = prompt("Підпис:");
-        textMode = false;
-    }}
+    }
+
+    var icon = L.icon({
+        iconUrl: selectedIcon || "{BASE_URL}detect_radiation.svg",
+        iconSize: [32,32],
+        iconAnchor: [16,16]
+    });
+
+    var m = L.marker(e.latlng, {icon}).addTo(map);
+
+    // 🔥 ВАЖНО: не popup, а постоянная подпись
+    if(text) {
+        L.tooltip({
+            permanent: true,
+            direction: "top",
+            className: "label-text"
+        })
+        .setContent(text)
+        .setLatLng(e.latlng)
+        .addTo(map);
+    }
+
+    m.on("click", function() {
+        map.removeLayer(m);
+    });
+
+    data.push({
+        lat: e.latlng.lat,
+        lng: e.latlng.lng,
+        icon: selectedIcon,
+        text: text
+    });
+
+    localStorage.setItem("cbrn", JSON.stringify(data));
+});
 
     var icon = L.icon({{
         iconUrl: selectedIcon,
