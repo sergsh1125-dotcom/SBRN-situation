@@ -131,4 +131,3 @@ window.textMode = false;
 """
 
     components.html(map_html, height=750)
-components.html(map_html, height=750)
