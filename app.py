@@ -36,7 +36,7 @@ html, body {{
 <div id="panel">
 
 <select id="symbolSelect">
-<option value="">-- вибір --</option>
+<option value="">-- умовні знаки --</option>
 <option value="{BASE_URL}detect_radiation.svg">Радіація</option>
 <option value="{BASE_URL}detect_chemical.svg">Хімія</option>
 <option value="{BASE_URL}detect_biological.svg">Біо</option>
