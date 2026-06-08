@@ -167,18 +167,18 @@ function drawItem(p) {{
         {{icon:icon}}
     ).addTo(map);
 
-    marker.on("click", function() {
+    marker.on("click", function() {{
 
     map.removeLayer(marker);
 
-    data = data.filter(function(item) {
+    data = data.filter(function(item) {{
         return !(
             item.type === "symbol" &&
-            item.lat === p.lat &&
-            item.lng === p.lng &&
-            item.icon === p.icon
+            item.lat === p.lat
         );
-    });
+    }});
+
+}});
 
     localStorage.setItem(
         "cbrn",
