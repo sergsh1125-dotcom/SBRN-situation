@@ -47,9 +47,7 @@ html, body {{
 <option value="{BASE_URL}cbrn_recon_area.svg">Район РХБ розвідки</option>
 <option value="{BASE_URL}decon_area_special.svg">Район спеціальної обробки</option>
 <option value="{BASE_URL}decon_point_special.svg">Пункт спеціальної обробки</option>
-<option value="{BASE_URL}cbrn_post.svg">Пост РХС</option>
-<option value="{BASE_URL}cbrn_post.svg">Пост РХС</option>
-
+<option value="{BASE_URL}cbrn_post.svg">Пост радіаційного та хімічного спостереження</option>
 </select>
 
 <button onclick="enableText()">Текст</button>
