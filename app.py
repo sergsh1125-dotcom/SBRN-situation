@@ -124,19 +124,38 @@ var data = JSON.parse(
 
 function drawItem(p) {{
 
-    if(p.type === "text") {{
+    if(p.type === "text") {
 
-        L.tooltip({{
-            permanent:true,
-            direction:"top",
-            className:"label-text"
-        }})
-        .setLatLng([p.lat,p.lng])
-        .setContent(p.text)
-        .addTo(map);
+    var label = L.tooltip({
+        permanent:true,
+        direction:"top",
+        className:"label-text"
+    })
+    .setLatLng([p.lat,p.lng])
+    .setContent(p.text)
+    .addTo(map);
 
-        return;
-    }}
+    label.on("click", function() {
+
+        map.removeLayer(label);
+
+        data = data.filter(function(item) {
+            return !(
+                item.type === "text" &&
+                item.lat === p.lat &&
+                item.lng === p.lng &&
+                item.text === p.text
+            );
+        });
+
+        localStorage.setItem(
+            "cbrn",
+            JSON.stringify(data)
+        );
+    });
+
+    return;
+}
 
     var icon = L.icon({{
         iconUrl:p.icon,
@@ -149,10 +168,24 @@ function drawItem(p) {{
         {{icon:icon}}
     ).addTo(map);
 
-    marker.on("click", function() {{
-        map.removeLayer(marker);
-    }});
-}}
+    marker.on("click", function() {
+
+    map.removeLayer(marker);
+
+    data = data.filter(function(item) {
+        return !(
+            item.type === "symbol" &&
+            item.lat === p.lat &&
+            item.lng === p.lng &&
+            item.icon === p.icon
+        );
+    });
+
+    localStorage.setItem(
+        "cbrn",
+        JSON.stringify(data)
+    );
+});
 
 data.forEach(function(p) {{
     drawItem(p);
