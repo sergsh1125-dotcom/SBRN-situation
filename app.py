@@ -14,29 +14,32 @@ html, body {{
     margin:0;
     padding:0;
 }}
-.label-text {
-    background: white;
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 12px;
-    color: black;
-}
+
+#map {{
+    height:92vh;
+    width:100%;
+}}
+
 #panel {{
     position:absolute;
     top:10px;
-    right:10px;   /* 👈 ВАЖНО: перенос вправо */
+    right:10px;
     z-index:9999;
     background:white;
     padding:10px;
     border-radius:6px;
-    width:200px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.2);
+    width:220px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.25);
 }}
 
-#map {{
-    height: 92vh;
-    width: 100%;
+.label-text {{
+    background:white;
+    border:1px solid #333;
+    border-radius:4px;
+    padding:2px 6px;
+    color:black;
+    font-size:12px;
+    font-weight:bold;
 }}
 </style>
 
@@ -44,21 +47,57 @@ html, body {{
 
 <select id="symbolSelect">
 <option value="">-- умовні знаки --</option>
-<option value="{BASE_URL}detect_radiation.svg">Точка виявлення радіоактивного забруднення</option>
-<option value="{BASE_URL}detect_chemical.svg">Точка виявлення хімічного забруднення</option>
-<option value="{BASE_URL}detect_biological.svg">Точка виявлення біологічного зараження</option>
-<option value="{BASE_URL}nuclear_blast.svg">Епіцентр ядерного вибуху</option>
-<option value="{BASE_URL}radioactive_site.svg">Радіаційно небезпечний об’єкт</option>
-<option value="{BASE_URL}chemical_hazard_site.svg">Хімічно небезпечний об’єкт</option>
-<option value="{BASE_URL}biological_hazard_site.svg">Біологічно небезпечний об’єкт</option>
-<option value="{BASE_URL}cbrn_recon_area.svg">Район РХБ розвідки</option>
-<option value="{BASE_URL}decon_area_special.svg">Район спеціальної обробки</option>
-<option value="{BASE_URL}decon_point_special.svg">Пункт спеціальної обробки</option>
-<option value="{BASE_URL}cbrn_post.svg">Пост радіаційного та хімічного спостереження</option>
+
+<option value="{BASE_URL}detect_radiation.svg">
+Точка виявлення радіоактивного забруднення
+</option>
+
+<option value="{BASE_URL}detect_chemical.svg">
+Точка виявлення хімічного забруднення
+</option>
+
+<option value="{BASE_URL}detect_biological.svg">
+Точка виявлення біологічного зараження
+</option>
+
+<option value="{BASE_URL}nuclear_blast.svg">
+Епіцентр ядерного вибуху
+</option>
+
+<option value="{BASE_URL}radioactive_site.svg">
+Радіаційно небезпечний об’єкт
+</option>
+
+<option value="{BASE_URL}chemical_hazard_site.svg">
+Хімічно небезпечний об’єкт
+</option>
+
+<option value="{BASE_URL}biological_hazard_site.svg">
+Біологічно небезпечний об’єкт
+</option>
+
+<option value="{BASE_URL}cbrn_recon_area.svg">
+Район РХБ розвідки
+</option>
+
+<option value="{BASE_URL}decon_area_special.svg">
+Район спеціальної обробки
+</option>
+
+<option value="{BASE_URL}decon_point_special.svg">
+Пункт спеціальної обробки
+</option>
+
+<option value="{BASE_URL}cbrn_post.svg">
+Пост радіаційного та хімічного спостереження
+</option>
+
 </select>
 
+<br><br>
+
 <button onclick="enableText()">Текст</button>
-<button onclick="disableMode()">ВИКЛ нанесення знаку</button>
+<button onclick="disableMode()">ВИКЛ нанесення</button>
 <button onclick="clearAll()">Очистити</button>
 
 </div>
@@ -69,118 +108,133 @@ html, body {{
 
 var map = L.map('map').setView([48.3794,31.1656],6);
 
-L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png').addTo(map);
+L.tileLayer(
+    'https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png',
+    {{
+        maxZoom:19
+    }}
+).addTo(map);
 
 var selectedIcon = "";
 var textMode = false;
-var addMode = true;
 
-var data = JSON.parse(localStorage.getItem("cbrn") || "[]");
+var data = JSON.parse(
+    localStorage.getItem("cbrn") || "[]"
+);
 
-data.forEach(p => {{
+function drawItem(p) {{
+
+    if(p.type === "text") {{
+
+        L.tooltip({{
+            permanent:true,
+            direction:"top",
+            className:"label-text"
+        }})
+        .setLatLng([p.lat,p.lng])
+        .setContent(p.text)
+        .addTo(map);
+
+        return;
+    }}
 
     var icon = L.icon({{
-        iconUrl: p.icon,
-        iconSize: [32,32],
-        iconAnchor: [16,16]
+        iconUrl:p.icon,
+        iconSize:[32,32],
+        iconAnchor:[16,16]
     }});
 
-    var m = L.marker([p.lat,p.lng], {{icon}}).addTo(map);
+    var marker = L.marker(
+        [p.lat,p.lng],
+        {{icon:icon}}
+    ).addTo(map);
 
-    if(p.text) m.bindPopup(p.text);
-
-    m.on("click", function() {{
-        map.removeLayer(m);
+    marker.on("click", function() {{
+        map.removeLayer(marker);
     }});
+}}
+
+data.forEach(function(p) {{
+    drawItem(p);
 }});
 
-document.getElementById("symbolSelect").onchange = function(e) {{
+document.getElementById("symbolSelect").onchange =
+function(e) {{
     selectedIcon = e.target.value;
-    addMode = true;
+    textMode = false;
 }};
 
-map.on('click', function(e) {
+map.on("click", function(e) {{
 
-    var text = "";
+    // РЕЖИМ ТЕКСТА
 
-    // если включён режим текста — всегда спрашиваем
-    if(textMode) {
-        text = prompt("Підпис:");
-    }
+    if(textMode) {{
 
-    var icon = L.icon({
-        iconUrl: selectedIcon || "{BASE_URL}detect_radiation.svg",
-        iconSize: [32,32],
-        iconAnchor: [16,16]
-    });
+        var txt = prompt("Введіть текст:");
 
-    var m = L.marker(e.latlng, {icon}).addTo(map);
+        if(txt && txt.trim() !== "") {{
 
-    // 🔥 ВАЖНО: не popup, а постоянная подпись
-    if(text) {
-        L.tooltip({
-            permanent: true,
-            direction: "top",
-            className: "label-text"
-        })
-        .setContent(text)
-        .setLatLng(e.latlng)
-        .addTo(map);
-    }
+            var obj = {{
+                type:"text",
+                lat:e.latlng.lat,
+                lng:e.latlng.lng,
+                text:txt
+            }};
 
-    m.on("click", function() {
-        map.removeLayer(m);
-    });
+            data.push(obj);
 
-    data.push({
-        lat: e.latlng.lat,
-        lng: e.latlng.lng,
-        icon: selectedIcon,
-        text: text
-    });
+            localStorage.setItem(
+                "cbrn",
+                JSON.stringify(data)
+            );
 
-    localStorage.setItem("cbrn", JSON.stringify(data));
-});
+            drawItem(obj);
+        }}
 
-    var icon = L.icon({{
-        iconUrl: selectedIcon,
-        iconSize: [32,32],
-        iconAnchor: [16,16]
-    }});
+        return;
+    }}
 
-    var m = L.marker(e.latlng, {{icon}}).addTo(map);
+    // РЕЖИМ ЗНАКОВ
 
-    if(text) m.bindPopup(text);
+    if(!selectedIcon) return;
 
-    m.on("click", function() {{
-        map.removeLayer(m);
-    }});
+    var obj = {{
+        type:"symbol",
+        lat:e.latlng.lat,
+        lng:e.latlng.lng,
+        icon:selectedIcon
+    }};
 
-    data.push({{
-        lat: e.latlng.lat,
-        lng: e.latlng.lng,
-        icon: selectedIcon,
-        text: text
-    }});
+    data.push(obj);
 
-    localStorage.setItem("cbrn", JSON.stringify(data));
+    localStorage.setItem(
+        "cbrn",
+        JSON.stringify(data)
+    );
+
+    drawItem(obj);
 }});
 
 function enableText() {{
     textMode = true;
+    selectedIcon = "";
 }}
 
 function disableMode() {{
-    addMode = false;
+    textMode = false;
     selectedIcon = "";
 }}
 
 function clearAll() {{
-    localStorage.removeItem("cbrn");
-    location.reload();
+
+    if(confirm("Очистити карту?")) {{
+
+        localStorage.removeItem("cbrn");
+        location.reload();
+    }}
 }}
 
 </script>
 """
 
-components.html(map_html, height=800)
+components.html(map_html, height=850)
