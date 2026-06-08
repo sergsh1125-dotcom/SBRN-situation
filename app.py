@@ -168,68 +168,7 @@ function drawItem(p) {{
         {{icon:icon}}
     ).addTo(map);
 
-    marker.on("click", function() {{
-
-        map.removeLayer(marker);
-
-        data = data.filter(function(item) {{
-            return !(
-                item.type === "symbol" &&
-                item.lat === p.lat &&
-                item.lng === p.lng &&
-                item.icon === p.icon
-            );
-        }});
-
-        localStorage.setItem(
-            "cbrn",
-            JSON.stringify(data)
-        );
-    }});
-}}
-    return;
-}}
-    var icon = L.icon({{
-        iconUrl:p.icon,
-        iconSize:[32,32],
-        iconAnchor:[16,16]
-    }});
-
-    var marker = L.marker(
-        [p.lat,p.lng],
-        {{icon:icon}}
-    ).addTo(map);
-
-    marker.on("click", function() {{
-
-    map.removeLayer(marker);
-
-    data = data.filter(function(item) {{
-        return !(
-            item.type === "symbol" &&
-            item.lat === p.lat
-        );
-    }});
-
-}});
-
-    localStorage.setItem(
-        "cbrn",
-        JSON.stringify(data)
-    );
-});
-
-data.forEach(function(p) {{
-    drawItem(p);
-}});
-
-document.getElementById("symbolSelect").onchange =
-function(e) {{
-    selectedIcon = e.target.value;
-    textMode = false;
-}};
-
-map.on("click", function(e) {{
+  map.on("click", function(e) {{
 
     // РЕЖИМ ТЕКСТА
 
@@ -291,14 +230,11 @@ function disableMode() {{
 }}
 
 function clearAll() {{
-
     if(confirm("Очистити карту?")) {{
-
         localStorage.removeItem("cbrn");
         location.reload();
     }}
 }}
-
 </script>
 """
 
