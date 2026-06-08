@@ -37,15 +37,15 @@ html, body {{
 
 <select id="symbolSelect">
 <option value="">-- умовні знаки --</option>
-<option value="{BASE_URL}detect_radiation.svg">Радіація</option>
-<option value="{BASE_URL}detect_chemical.svg">Хімія</option>
-<option value="{BASE_URL}detect_biological.svg">Біо</option>
-<option value="{BASE_URL}nuclear_blast.svg">Ядерний вибух</option>
+<option value="{BASE_URL}detect_radiation.svg">Точка виявлення радіоактивного забруднення</option>
+<option value="{BASE_URL}detect_chemical.svg">Точка виявлення хімічного забруднення</option>
+<option value="{BASE_URL}detect_biological.svg">Точка виявлення біологічного зараження</option>
+<option value="{BASE_URL}nuclear_blast.svg">Епіцентр ядерного вибуху</option>
 <option value="{BASE_URL}cbrn_post.svg">Пост РХС</option>
 </select>
 
 <button onclick="enableText()">Текст</button>
-<button onclick="disableMode()">ВИКЛ режим</button>
+<button onclick="disableMode()">ВИКЛ нанесення знаку</button>
 <button onclick="clearAll()">Очистити</button>
 
 </div>
