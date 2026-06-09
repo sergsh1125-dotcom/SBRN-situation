@@ -126,37 +126,41 @@ function drawItem(p) {{
 
     if(p.type === "text") {{
 
-        var label = L.tooltip({{
-            permanent:true,
-            direction:"top",
-            className:"label-text"
-        }})
-        .setLatLng([p.lat,p.lng])
-        .setContent(p.text)
-        .addTo(map);
+    var textIcon = L.divIcon({{
+        className: "",
+        html: '<div class="label-text">' + p.text + '</div>',
+        iconSize: [150, 24],
+        iconAnchor: [0, 12]
+    }});
 
-        label.on("click", function() {{
+    var textMarker = L.marker(
+        [p.lat, p.lng],
+        {{
+            icon: textIcon
+        }}
+    ).addTo(map);
 
-            map.removeLayer(label);
+    textMarker.on("click", function() {{
 
-            data = data.filter(function(item) {{
-                return !(
-                    item.type === "text" &&
-                    item.lat === p.lat &&
-                    item.lng === p.lng &&
-                    item.text === p.text
-                );
-            }});
+        map.removeLayer(textMarker);
 
-            localStorage.setItem(
-                "cbrn",
-                JSON.stringify(data)
+        data = data.filter(function(item) {{
+            return !(
+                item.type === "text" &&
+                item.lat === p.lat &&
+                item.lng === p.lng &&
+                item.text === p.text
             );
         }});
 
-        return;
-    }}
+        localStorage.setItem(
+            "cbrn",
+            JSON.stringify(data)
+        );
+    }});
 
+    return;
+}}
     var icon = L.icon({{
         iconUrl:p.icon,
         iconSize:[32,32],
