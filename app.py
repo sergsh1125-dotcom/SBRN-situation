@@ -191,7 +191,11 @@ function drawItem(p) {{
 data.forEach(function(p) {{
     drawItem(p);
 }});
-
+document.getElementById("symbolSelect").onchange =
+function(e) {{
+    selectedIcon = e.target.value;
+    textMode = false;
+}};
 map.on("click", function(e) {{
 
     // РЕЖИМ ТЕКСТА
