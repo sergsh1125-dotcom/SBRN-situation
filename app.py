@@ -168,7 +168,31 @@ function drawItem(p) {{
         {{icon:icon}}
     ).addTo(map);
 
-  map.on("click", function(e) {{
+    marker.on("click", function() {{
+
+        map.removeLayer(marker);
+
+        data = data.filter(function(item) {{
+            return !(
+                item.type === "symbol" &&
+                item.lat === p.lat &&
+                item.lng === p.lng &&
+                item.icon === p.icon
+            );
+        }});
+
+        localStorage.setItem(
+            "cbrn",
+            JSON.stringify(data)
+        );
+    }});
+}}
+
+data.forEach(function(p) {{
+    drawItem(p);
+}});
+
+map.on("click", function(e) {{
 
     // РЕЖИМ ТЕКСТА
 
@@ -218,7 +242,6 @@ function drawItem(p) {{
 
     drawItem(obj);
 }});
-
 function enableText() {{
     textMode = true;
     selectedIcon = "";
